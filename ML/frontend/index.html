@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleIQ • Multi-Model Sentiment Analysis System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=3.4">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Top Application Navigation Bar -->
+        <header class="studio-header">
+            <div class="header-left">
+                <div class="app-brand">
+                    <div class="brand-symbol">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </div>
+                    <div class="brand-meta">
+                        <h1 class="brand-name">EnsembleIQ</h1>
+                        <span class="brand-env">v2.0 • Ensemble Intelligence</span>
+                    </div>
+                </div>
+
+                <div class="system-status-group">
+                    <div class="status-indicator" id="backend-status-pill">
+                        <span class="status-light"></span>
+                        <span class="status-label" id="backend-status-text">Backend: Connecting...</span>
+                    </div>
+                    <span class="meta-tag">4 Classifiers Active</span>
+                    <span class="meta-tag">25,000 TF-IDF Features</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Module Navigation Bar (Clean Segmented Control) -->
+        <nav class="studio-nav">
+            <div class="nav-segment-container">
+                <button class="nav-tab active" data-tab="tab-predict">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    <span>Live Inference</span>
+                </button>
+                <button class="nav-tab" data-tab="tab-analytics">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span>Model Comparison</span>
+                </button>
+                <button class="nav-tab" data-tab="tab-nlp">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>NLP Feature Inspector</span>
+                </button>
+                <button class="nav-tab" data-tab="tab-batch">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Batch Studio</span>
+                </button>
+                <button class="nav-tab" data-tab="tab-leaderboard">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                    <span>Architecture Specs</span>
+                </button>
+                <button class="nav-tab" data-tab="tab-history">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Audit Log</span>
+                    <span class="tab-count-tag" id="history-badge-count">0</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Dashboard Viewport -->
+        <main class="studio-body">
+
+            <!-- ============================================== -->
+            <!-- MODULE 1: LIVE INFERENCE PREDICTOR             -->
+            <!-- ============================================== -->
+            <section class="tab-content active" id="tab-predict">
+                <!-- Evaluation Sample Presets -->
+                <div class="preset-strip">
+                    <span class="preset-label">Test Case Presets:</span>
+                    <div class="preset-list">
+                        <button class="preset-pill" data-preset="I was not expecting this to work so well, but it proved me wrong and performed wonderfully!">
+                            Idiom Contrast: "Proved me wrong"
+                        </button>
+                        <button class="preset-pill" data-preset="Horrible customer support and delayed delivery. The device broke on the first day, complete waste of money.">
+                            Complaint: "Broke on first day"
+                        </button>
+                        <button class="preset-pill" data-preset="This product completely blew me away! Best purchase of the year, absolutely flawless experience.">
+                            Positive: "Flawless experience"
+                        </button>
+                        <button class="preset-pill" data-preset="The battery life is acceptable, but the software contains numerous frustrating lag spikes.">
+                            Mixed: "Acceptable but laggy"
+                        </button>
+                        <button class="preset-pill" data-preset="Extremely disappointed with the cheap materials. Do not recommend to anyone.">
+                            Negative: "Cheap materials"
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Workbench Card -->
+                <div class="workbench-card">
+                    <div class="card-toolbar">
+                        <div class="toolbar-title">
+                            <h3>Input Text Sentence</h3>
+                            <span class="toolbar-hint">Classified simultaneously across 4 distinct ensemble models</span>
+                        </div>
+                        <div class="text-metrics">
+                            <span id="char-counter">0 chars</span>
+                            <span class="metric-sep">/</span>
+                            <span id="word-counter">0 words</span>
+                        </div>
+                    </div>
+
+                    <div class="input-container">
+                        <textarea 
+                            id="text-input" 
+                            rows="4" 
+                            placeholder="Enter any sentence or customer review to evaluate sentiment across the ensemble models..."
+                            spellcheck="false"
+                        ></textarea>
+                    </div>
+
+                    <div class="card-actions">
+                        <div class="action-hints">
+                            <span class="kbd-badge"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to evaluate</span>
+                            <button class="action-text-btn" id="random-sample-btn">Insert Sample</button>
+                            <button class="action-text-btn" id="clear-input-btn">Clear</button>
+                        </div>
+
+                        <button id="analyze-btn" class="submit-btn">
+                            <span class="btn-spinner hidden" id="btn-spinner"></span>
+                            <span class="btn-label">Run Inference</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Inference Progress State -->
+                <div id="loading-state" class="state-banner hidden">
+                    <div class="spinner-linear"></div>
+                    <div class="state-copy">
+                        <strong>Evaluating Ensemble Models...</strong>
+                        <p>Passing tokens into TF-IDF vectorizer and broadcasting across Random Forest, AdaBoost, Gradient Boost, and XGBoost.</p>
+                    </div>
+                </div>
+
+                <!-- Inference Results Workspace -->
+                <div class="results-layout hidden" id="results-dashboard">
+                    <!-- Ensemble Meta-Verdict Panel -->
+                    <div class="verdict-panel" id="consensus-banner">
+                        <div class="verdict-primary">
+                            <div class="verdict-label-group">
+                                <span class="eyebrow">ENSEMBLE META-VERDICT</span>
+                                <div class="verdict-main-row">
+                                    <div class="verdict-indicator" id="consensus-verdict-pill">
+                                        <span class="verdict-dot"></span>
+                                        <span class="verdict-title" id="consensus-verdict-text">Positive</span>
+                                    </div>
+                                    <span class="agreement-tag" id="unanimous-badge">Unanimous Consensus</span>
+                                </div>
+                            </div>
+                            <p class="verdict-summary" id="consensus-desc">
+                                All 4 ensemble classifiers agreed on this classification with zero model disagreement.
+                            </p>
+                        </div>
+
+                        <div class="verdict-kpis">
+                            <div class="kpi-cell">
+                                <span class="kpi-label">Agreement Rate</span>
+                                <span class="kpi-num" id="metric-agreement">100%</span>
+                                <span class="kpi-sub" id="metric-votes">4 of 4 Models</span>
+                            </div>
+                            <div class="kpi-cell">
+                                <span class="kpi-label">Positive Votes</span>
+                                <span class="kpi-num pos-num" id="metric-pos-votes">4</span>
+                                <span class="kpi-sub" id="metric-pos-prob">100% Share</span>
+                            </div>
+                            <div class="kpi-cell">
+                                <span class="kpi-label">Negative Votes</span>
+                                <span class="kpi-num neg-num" id="metric-neg-votes">0</span>
+                                <span class="kpi-sub" id="metric-neg-prob">0% Share</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Individual Model Prediction Table & Cards -->
+                    <div class="section-heading">
+                        <h4>Model Breakdown & Predictions</h4>
+                        <span class="heading-meta">Individual outputs from 4 distinct ensemble architectures</span>
+                    </div>
+
+                    <div class="models-grid">
+
+                        <!-- Random Forest -->
+                        <div class="model-card" id="card-rf">
+                            <div class="model-card-top">
+                                <div class="model-id">
+                                    <span class="tech-badge bagging">Bagging</span>
+                                    <h5 class="model-title">Random Forest</h5>
+                                </div>
+                                <span class="model-class-pill" id="badge-rf">--</span>
+                            </div>
+                            <div class="model-conf-meter">
+                                <div class="meter-track">
+                                    <div class="meter-bar" id="bar-rf" style="width: 100%"></div>
+                                </div>
+                                <div class="meter-label">
+                                    <span>Classification Weight</span>
+                                    <span class="meter-val" id="conf-rf">Active</span>
+                                </div>
+                            </div>
+                            <div class="model-metadata">
+                                <span>100 Estimators</span>
+                                <span>•</span>
+                                <span>depth=25</span>
+                            </div>
+                        </div>
+
+                        <!-- AdaBoost -->
+                        <div class="model-card" id="card-ada">
+                            <div class="model-card-top">
+                                <div class="model-id">
+                                    <span class="tech-badge boosting">Boosting</span>
+                                    <h5 class="model-title">AdaBoost</h5>
+                                </div>
+                                <span class="model-class-pill" id="badge-ada">--</span>
+                            </div>
+                            <div class="model-conf-meter">
+                                <div class="meter-track">
+                                    <div class="meter-bar" id="bar-ada" style="width: 100%"></div>
+                                </div>
+                                <div class="meter-label">
+                                    <span>Classification Weight</span>
+                                    <span class="meter-val" id="conf-ada">Active</span>
+                                </div>
+                            </div>
+                            <div class="model-metadata">
+                                <span>60 Estimators</span>
+                                <span>•</span>
+                                <span>depth=3 Trees</span>
+                            </div>
+                        </div>
+
+                        <!-- Gradient Boost -->
+                        <div class="model-card" id="card-gb">
+                            <div class="model-card-top">
+                                <div class="model-id">
+                                    <span class="tech-badge boosting">Sequential</span>
+                                    <h5 class="model-title">Gradient Boost</h5>
+                                </div>
+                                <span class="model-class-pill" id="badge-gb">--</span>
+                            </div>
+                            <div class="model-conf-meter">
+                                <div class="meter-track">
+                                    <div class="meter-bar" id="bar-gb" style="width: 100%"></div>
+                                </div>
+                                <div class="meter-label">
+                                    <span>Classification Weight</span>
+                                    <span class="meter-val" id="conf-gb">Active</span>
+                                </div>
+                            </div>
+                            <div class="model-metadata">
+                                <span>70 Estimators</span>
+                                <span>•</span>
+                                <span>depth=5, lr=0.15</span>
+                            </div>
+                        </div>
+
+                        <!-- XGBoost -->
+                        <div class="model-card" id="card-xgb">
+                            <div class="model-card-top">
+                                <div class="model-id">
+                                    <span class="tech-badge extreme">Extreme</span>
+                                    <h5 class="model-title">XGBoost</h5>
+                                </div>
+                                <span class="model-class-pill" id="badge-xgb">--</span>
+                            </div>
+                            <div class="model-conf-meter">
+                                <div class="meter-track">
+                                    <div class="meter-bar" id="bar-xgb" style="width: 100%"></div>
+                                </div>
+                                <div class="meter-label">
+                                    <span>Classification Weight</span>
+                                    <span class="meter-val" id="conf-xgb">Active</span>
+                                </div>
+                            </div>
+                            <div class="model-metadata">
+                                <span>70 Estimators</span>
+                                <span>•</span>
+                                <span>Regularized Trees</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================== -->
+            <!-- MODULE 2: ENSEMBLE COMPARISON & ANALYTICS      -->
+            <!-- ============================================== -->
+            <section class="tab-content" id="tab-analytics">
+                <div class="module-header">
+                    <h2>Ensemble Consensus & Model Distribution</h2>
+                    <p>Cross-model classification comparison, divergence detection, and polarity scoring.</p>
+                </div>
+
+                <div class="analytics-layout">
+                    <!-- Model Comparison Chart -->
+                    <div class="panel-box span-2">
+                        <div class="panel-box-header">
+                            <h4>Model Alignment Matrix</h4>
+                            <span class="panel-sub">Comparative binary outputs across all 4 ensemble models</span>
+                        </div>
+
+                        <div class="distribution-table" id="analytics-chart-container">
+
+                            <div class="distribution-row" id="row-chart-rf">
+                                <div class="row-name">Random Forest</div>
+                                <div class="row-dual-bar">
+                                    <div class="dual-segment pos-seg" id="pos-bar-rf" style="width: 50%"></div>
+                                    <div class="dual-segment neg-seg" id="neg-bar-rf" style="width: 50%"></div>
+                                </div>
+                                <div class="row-status" id="tag-chart-rf">--</div>
+                            </div>
+
+                            <div class="distribution-row" id="row-chart-ada">
+                                <div class="row-name">AdaBoost</div>
+                                <div class="row-dual-bar">
+                                    <div class="dual-segment pos-seg" id="pos-bar-ada" style="width: 50%"></div>
+                                    <div class="dual-segment neg-seg" id="neg-bar-ada" style="width: 50%"></div>
+                                </div>
+                                <div class="row-status" id="tag-chart-ada">--</div>
+                            </div>
+
+                            <div class="distribution-row" id="row-chart-gb">
+                                <div class="row-name">Gradient Boost</div>
+                                <div class="row-dual-bar">
+                                    <div class="dual-segment pos-seg" id="pos-bar-gb" style="width: 50%"></div>
+                                    <div class="dual-segment neg-seg" id="neg-bar-gb" style="width: 50%"></div>
+                                </div>
+                                <div class="row-status" id="tag-chart-gb">--</div>
+                            </div>
+
+                            <div class="distribution-row" id="row-chart-xgb">
+                                <div class="row-name">XGBoost</div>
+                                <div class="row-dual-bar">
+                                    <div class="dual-segment pos-seg" id="pos-bar-xgb" style="width: 50%"></div>
+                                    <div class="dual-segment neg-seg" id="neg-bar-xgb" style="width: 50%"></div>
+                                </div>
+                                <div class="row-status" id="tag-chart-xgb">--</div>
+                            </div>
+                        </div>
+
+                        <div class="table-legend">
+                            <span class="legend-chip"><span class="chip-color green"></span> Positive Sentiment</span>
+                            <span class="legend-chip"><span class="chip-color red"></span> Negative Sentiment</span>
+                        </div>
+                    </div>
+
+                    <!-- Divergence Status Panel -->
+                    <div class="panel-box">
+                        <div class="panel-box-header">
+                            <h4>Divergence Telemetry</h4>
+                        </div>
+                        <div class="telemetry-block" id="divergence-box">
+                            <span class="telemetry-icon" id="divergence-icon">✓</span>
+                            <h5 id="divergence-title">Awaiting Inference</h5>
+                            <p id="divergence-text">Run a prediction in Live Inference to observe model divergence telemetry.</p>
+                        </div>
+
+                        <div class="spec-list">
+                            <div class="spec-row">
+                                <span class="spec-label">Ensemble Method:</span>
+                                <span class="spec-value">Weighted Majority (4 Models)</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Feature Extractor:</span>
+                                <span class="spec-value">TF-IDF (1, 3) N-Grams</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Negation Binding:</span>
+                                <span class="spec-value">Active (e.g. not_good)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Polarity Metric Gauge -->
+                    <div class="panel-box">
+                        <div class="panel-box-header">
+                            <h4>Composite Polarity Metric</h4>
+                        </div>
+                        <div class="polarity-widget">
+                            <div class="scale-header">
+                                <span class="neg-label">-1.0 (Negative)</span>
+                                <span class="zero-label">0.0</span>
+                                <span class="pos-label">+1.0 (Positive)</span>
+                            </div>
+                            <div class="scale-track">
+                                <div class="scale-pin" id="polarity-indicator" style="left: 50%"></div>
+                            </div>
+                            <div class="polarity-readout">
+                                <span>Polarity Index:</span>
+                                <strong id="polarity-score">0.00</strong>
+                            </div>
+                        </div>
+                        <p class="polarity-footnote" id="spectrum-explanation">
+                            Normalized vote composite score across all four ensemble algorithms.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================== -->
+            <!-- MODULE 3: NLP FEATURE & TOKEN INSPECTOR        -->
+            <!-- ============================================== -->
+            <section class="tab-content" id="tab-nlp">
+                <div class="module-header">
+                    <h2>Natural Language Processing Pipeline</h2>
+                    <p>Inspection of text sanitization, contraction expansion, negation compound binding, and TF-IDF feature tokens.</p>
+                </div>
+
+                <!-- Pipeline Stages -->
+                <div class="pipeline-row">
+                    <div class="pipeline-card">
+                        <span class="stage-tag">STAGE 01</span>
+                        <h5>Raw Input</h5>
+                        <div class="code-box" id="nlp-raw-text">Awaiting input...</div>
+                    </div>
+                    <div class="pipeline-connector">→</div>
+                    <div class="pipeline-card">
+                        <span class="stage-tag">STAGE 02</span>
+                        <h5>Contractions & Negation</h5>
+                        <p class="stage-desc">Expands contractions and binds negation tokens (e.g., "not_expecting").</p>
+                    </div>
+                    <div class="pipeline-connector">→</div>
+                    <div class="pipeline-card">
+                        <span class="stage-tag">STAGE 03</span>
+                        <h5>Normalized Text</h5>
+                        <div class="code-box highlight-code" id="nlp-clean-text">Awaiting input...</div>
+                    </div>
+                    <div class="pipeline-connector">→</div>
+                    <div class="pipeline-card">
+                        <span class="stage-tag">STAGE 04</span>
+                        <h5>TF-IDF Space</h5>
+                        <p class="stage-desc">Vectorized into 25,000 unigram, bigram, and trigram features.</p>
+                    </div>
+                </div>
+
+                <!-- Token Cloud and Quantitative Metrics -->
+                <div class="nlp-details-layout">
+                    <div class="panel-box span-2">
+                        <div class="panel-box-header">
+                            <h4>Extracted Feature Tokens</h4>
+                            <span class="panel-tag" id="token-count-pill">0 Tokens</span>
+                        </div>
+                        <p class="panel-sub">Retained sentiment carrier tokens extracted from the processed input text:</p>
+                        <div class="token-list" id="token-cloud">
+                            <span class="empty-state">No text analyzed yet. Run an inference query to view extracted tokens.</span>
+                        </div>
+                    </div>
+
+                    <div class="panel-box">
+                        <div class="panel-box-header">
+                            <h4>Lexical Metrics</h4>
+                        </div>
+                        <div class="spec-list">
+                            <div class="spec-row">
+                                <span class="spec-label">Character Count:</span>
+                                <span class="spec-value" id="nlp-metric-chars">0</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Raw Word Count:</span>
+                                <span class="spec-value" id="nlp-metric-words">0</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Retained Tokens:</span>
+                                <span class="spec-value" id="nlp-metric-tokens">0</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Stopwords Filtered:</span>
+                                <span class="spec-value" id="nlp-metric-stopwords">0</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Lexical Density:</span>
+                                <span class="spec-value" id="nlp-metric-density">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================== -->
+            <!-- MODULE 4: BATCH STUDIO & FILE PROCESSING       -->
+            <!-- ============================================== -->
+            <section class="tab-content" id="tab-batch">
+                <div class="module-header">
+                    <h2>Batch Sentiment Studio</h2>
+                    <p>Bulk review evaluation pipeline. Process multi-line customer reviews or upload CSV / TXT files.</p>
+                </div>
+
+                <div class="batch-workspace">
+                    <div class="panel-box">
+                        <div class="panel-box-header">
+                            <h4>Batch Review Input</h4>
+                            <div class="panel-actions">
+                                <button class="small-btn" id="load-sample-batch-btn">Load Sample Reviews</button>
+                                <button class="small-btn" id="clear-batch-btn">Clear</button>
+                            </div>
+                        </div>
+
+                        <div class="file-drop-zone" id="batch-dropzone">
+                            <input type="file" id="batch-file-input" accept=".txt,.csv" class="file-input-hidden">
+                            <p class="drop-text"><strong>Drag & drop a CSV or TXT file</strong>, or click to browse</p>
+                            <span class="drop-sub">One review per line</span>
+                        </div>
+
+                        <div class="batch-textarea-container">
+                            <textarea id="batch-textarea" rows="5" placeholder="Enter reviews (one per line):
+Exceptional customer experience, the package arrived two days early!
+Terrible customer service. Waited on the phone for an hour with zero help.
+The camera takes great photos, but battery drains quickly."></textarea>
+                        </div>
+
+                        <div class="batch-bottom-bar">
+                            <span class="batch-line-tag" id="batch-line-counter">0 lines detected</span>
+                            <button class="submit-btn" id="run-batch-btn">Process Batch</button>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="progress-container hidden" id="batch-progress-wrap">
+                            <div class="progress-track">
+                                <div class="progress-bar" id="batch-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-caption" id="batch-progress-text">Processing items... 0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Batch Summary Cards -->
+                    <div class="kpi-grid hidden" id="batch-stats-container">
+                        <div class="kpi-box">
+                            <span class="kpi-box-label">Total Processed</span>
+                            <span class="kpi-box-val" id="bstat-total">0</span>
+                        </div>
+                        <div class="kpi-box">
+                            <span class="kpi-box-label">Positive Sentiment</span>
+                            <span class="kpi-box-val text-pos" id="bstat-pos">0 (0%)</span>
+                        </div>
+                        <div class="kpi-box">
+                            <span class="kpi-box-label">Negative Sentiment</span>
+                            <span class="kpi-box-val text-neg" id="bstat-neg">0 (0%)</span>
+                        </div>
+                        <div class="kpi-box">
+                            <span class="kpi-box-label">Unanimous Consensus</span>
+                            <span class="kpi-box-val" id="bstat-unanimous">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Results Table -->
+                    <div class="panel-box hidden" id="batch-results-panel">
+                        <div class="table-controls">
+                            <div class="table-search-box">
+                                <input type="text" id="batch-table-search" placeholder="Filter batch results...">
+                            </div>
+                            <div class="filter-group">
+                                <button class="filter-pill active" data-filter="all">All</button>
+                                <button class="filter-pill" data-filter="Positive">Positive</button>
+                                <button class="filter-pill" data-filter="Negative">Negative</button>
+                            </div>
+                            <div class="export-group">
+                                <button class="small-btn" id="export-batch-csv">Export CSV</button>
+                                <button class="small-btn" id="export-batch-json">Export JSON</button>
+                            </div>
+                        </div>
+
+                        <div class="data-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Review Text</th>
+                                        <th>Verdict</th>
+                                        <th>Agreement</th>
+                                        <th>RF</th>
+                                        <th>ADA</th>
+                                        <th>GB</th>
+                                        <th>XGB</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="batch-table-body">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================== -->
+            <!-- MODULE 5: MODEL LEADERBOARD & SPECS            -->
+            <!-- ============================================== -->
+            <section class="tab-content" id="tab-leaderboard">
+                <div class="module-header">
+                    <h2>Ensemble Model Specifications</h2>
+                    <p>Mathematical foundations, hyperparameters, and benchmark metrics for all 4 deployed models.</p>
+                </div>
+
+                <div class="panel-box">
+                    <div class="panel-box-header">
+                        <h4>Deployed Architecture Matrix</h4>
+                        <span class="panel-sub">Trained on Sentiment140 with Trigram Sublinear TF-IDF (25,000 features)</span>
+                    </div>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Model Name</th>
+                                    <th>Algorithm Family</th>
+                                    <th>Key Hyperparameters</th>
+                                    <th>Test Accuracy</th>
+                                    <th>Latency</th>
+                                    <th>Core Operational Strength</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Random Forest</strong></td>
+                                    <td><span class="tech-badge bagging">Bagging</span></td>
+                                    <td><code>n_estimators=100, max_depth=25</code></td>
+                                    <td><span class="stat-badge green">72.1%</span></td>
+                                    <td>Fast</td>
+                                    <td>Reduces variance by aggregating decorrelated random trees</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>XGBoost</strong></td>
+                                    <td><span class="tech-badge extreme">Gradient</span></td>
+                                    <td><code>n_estimators=70, max_depth=6, lr=0.15</code></td>
+                                    <td><span class="stat-badge green">70.4%</span></td>
+                                    <td>Very Fast</td>
+                                    <td>Second-order Taylor gradient expansion with L1/L2 regularization</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gradient Boost</strong></td>
+                                    <td><span class="tech-badge boosting">Sequential</span></td>
+                                    <td><code>n_estimators=70, max_depth=5, lr=0.15</code></td>
+                                    <td><span class="stat-badge">69.6%</span></td>
+                                    <td>Moderate</td>
+                                    <td>Sequentially minimizes residual loss along steepest gradient vector</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AdaBoost</strong></td>
+                                    <td><span class="tech-badge boosting">Adaptive</span></td>
+                                    <td><code>n_estimators=60, base_depth=3</code></td>
+                                    <td><span class="stat-badge">65.5%</span></td>
+                                    <td>Fast</td>
+                                    <td>Sequentially re-weights samples misclassified in prior rounds</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="info-columns">
+                    <div class="info-card">
+                        <h6>Why Bagging & Boosting Excel</h6>
+                        <p>Single decision trees suffer from high variance on sparse text vocabularies. Ensemble bagging (Random Forest) and boosting (AdaBoost, XGBoost) neutralize overfitting by aggregating complementary decision paths.</p>
+                    </div>
+                    <div class="info-card">
+                        <h6>Negation-Aware Preprocessing</h6>
+                        <p>Traditional bag-of-words ignores word order. EnsembleIQ's pipeline binds negation markers directly into compound tokens (e.g. <code>not_expecting</code>, <code>not_good</code>), preserving vital semantic reversal.</p>
+                    </div>
+                    <div class="info-card">
+                        <h6>Sublinear TF Trigrams</h6>
+                        <p>Extracting unigrams through trigrams with sublinear term-frequency scaling allows phrases like "proved me wrong" and "complete waste of" to act as strong discriminative features.</p>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================== -->
+            <!-- MODULE 6: PREDICTION HISTORY & AUDIT LOG       -->
+            <!-- ============================================== -->
+            <section class="tab-content" id="tab-history">
+                <div class="module-header">
+                    <h2>Session Audit Log</h2>
+                    <p>Audit trail of all sentiment predictions evaluated during your current browser session.</p>
+                </div>
+
+                <div class="panel-box">
+                    <div class="panel-box-header">
+                        <span id="history-total-count">0 queries logged</span>
+                        <div class="panel-actions">
+                            <button class="small-btn" id="export-history-json">Export JSON</button>
+                            <button class="small-btn danger-btn" id="clear-history-btn">Clear History</button>
+                        </div>
+                    </div>
+
+                    <div class="history-list" id="history-list">
+                        <div class="empty-state" id="empty-history-state">
+                            <p>No queries logged yet. Evaluate sentences in Live Inference to record history.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Studio Footer -->
+        <footer class="studio-footer">
+            <span>EnsembleIQ • Production Ensemble Classifier • Scikit-Learn, XGBoost & FastAPI</span>
+        </footer>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js?v=3.4"></script>
+</body>
+</html>
