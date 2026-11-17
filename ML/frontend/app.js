@@ -105,7 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportHistoryJson = document.getElementById('export-history-json');
     const toastContainer = document.getElementById('toast-container');
 
-    const API_URL = 'http://localhost:8000';
+    // On Vercel the API lives at /api/* on the same origin.
+    // Locally (served by serve.py on :3000) fall back to the FastAPI dev server.
+    const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const API_URL  = IS_LOCAL ? 'http://localhost:8000' : '';
+    const HEALTH_PATH  = IS_LOCAL ? '/health'  : '/api/health';
+    const PREDICT_PATH = IS_LOCAL ? '/predict' : '/api/predict';
 
     // Sample Sentences for Evaluation
     const sampleSentences = [
@@ -141,13 +146,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     async function checkBackendConnection() {
         try {
-            const response = await fetch(`${API_URL}/health`);
+            const response = await fetch(`${API_URL}${HEALTH_PATH}`);
             if (response.ok) {
                 if (backendStatusPill) {
                     backendStatusPill.classList.remove('offline');
                     backendStatusPill.classList.add('online');
                 }
-                if (backendStatusText) backendStatusText.textContent = 'Backend: Active (:8000)';
+                if (backendStatusText) backendStatusText.textContent = IS_LOCAL ? 'Backend: Active (:8000)' : 'Backend: Active';
                 return;
             }
             throw new Error('Health check returned non-200');
@@ -156,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 backendStatusPill.classList.remove('online');
                 backendStatusPill.classList.add('offline');
             }
-            if (backendStatusText) backendStatusText.textContent = 'Backend: Offline (:8000)';
+            if (backendStatusText) backendStatusText.textContent = IS_LOCAL ? 'Backend: Offline (:8000)' : 'Backend: Offline';
         }
     }
     checkBackendConnection();
@@ -285,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (analyzeBtn) analyzeBtn.disabled = true;
 
         try {
-            const response = await fetch(`${API_URL}/predict`, {
+            const response = await fetch(`${API_URL}${PREDICT_PATH}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text })
@@ -648,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let preds = {};
 
                 try {
-                    const res = await fetch(`${API_URL}/predict`, {
+                    const res = await fetch(`${API_URL}${PREDICT_PATH}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: sentence })
