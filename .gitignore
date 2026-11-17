@@ -16,3 +16,6 @@ __pycache__/
 # IDE and Editor settings
 .vscode/
 .idea/
+
+.vercel
+api/*.pkl
