@@ -19,15 +19,6 @@ app.add_middleware(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ML_DIR = os.path.join(BASE_DIR, '..', 'ML')
 
-def find_file(filename):
-    p1 = os.path.join(BASE_DIR, filename)
-    if os.path.exists(p1):
-        return p1
-    p2 = os.path.join(ML_DIR, filename)
-    if os.path.exists(p2):
-        return p2
-    return p1
-
 vectorizer = None
 rf_model = None
 ada_model = None
@@ -35,23 +26,73 @@ gb_model = None
 xgb_model = None
 priors = {}
 zero_feat = None
+load_error = None
+found_paths = {}
 
-try:
-    vectorizer = joblib.load(find_file('vectorizer.pkl'))
-    rf_model = joblib.load(find_file('rf_model.pkl'))
-    ada_model = joblib.load(find_file('ada_model.pkl'))
-    gb_model = joblib.load(find_file('gb_model.pkl'))
-    xgb_model = joblib.load(find_file('xgb_model.pkl'))
-    zero_feat = vectorizer.transform([""]).toarray()
-    priors = {
-        "Random Forest": float(rf_model.predict_proba(zero_feat)[0][1]),
-        "AdaBoost": float(ada_model.predict_proba(zero_feat)[0][1]),
-        "Gradient Boost": float(gb_model.predict_proba(zero_feat)[0][1]),
-        "XGBoost": float(xgb_model.predict_proba(zero_feat)[0][1]),
-    }
-    print("Models loaded successfully!")
-except Exception as e:
-    print(f"Warning: Models not loaded. Error: {e}")
+def find_file(filename):
+    candidates = [
+        os.path.join(BASE_DIR, filename),
+        os.path.join(ML_DIR, filename),
+        os.path.join(os.getcwd(), 'ML', filename),
+        os.path.join(os.getcwd(), filename),
+        os.path.join('/var/task', 'ML', filename),
+        os.path.join('/var/task', filename),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+            
+    # Recursive search if not found in standard paths
+    search_roots = [os.getcwd(), BASE_DIR, '/var/task']
+    for root in search_roots:
+        if os.path.exists(root):
+            for dirpath, _, filenames in os.walk(root):
+                if filename in filenames:
+                    return os.path.join(dirpath, filename)
+    return candidates[0]
+
+def load_models():
+    global vectorizer, rf_model, ada_model, gb_model, xgb_model, priors, zero_feat, load_error, found_paths
+    if all([vectorizer, rf_model, ada_model, gb_model, xgb_model]):
+        return True
+    try:
+        f_vec = find_file('vectorizer.pkl')
+        f_rf = find_file('rf_model.pkl')
+        f_ada = find_file('ada_model.pkl')
+        f_gb = find_file('gb_model.pkl')
+        f_xgb = find_file('xgb_model.pkl')
+        
+        found_paths = {
+            'vectorizer': f_vec,
+            'rf': f_rf,
+            'ada': f_ada,
+            'gb': f_gb,
+            'xgb': f_xgb
+        }
+        
+        vectorizer = joblib.load(f_vec)
+        rf_model = joblib.load(f_rf)
+        ada_model = joblib.load(f_ada)
+        gb_model = joblib.load(f_gb)
+        xgb_model = joblib.load(f_xgb)
+        
+        zero_feat = vectorizer.transform([""]).toarray()
+        priors = {
+            "Random Forest": float(rf_model.predict_proba(zero_feat)[0][1]),
+            "AdaBoost": float(ada_model.predict_proba(zero_feat)[0][1]),
+            "Gradient Boost": float(gb_model.predict_proba(zero_feat)[0][1]),
+            "XGBoost": float(xgb_model.predict_proba(zero_feat)[0][1]),
+        }
+        load_error = None
+        print("Models loaded successfully!")
+        return True
+    except Exception as e:
+        load_error = str(e)
+        print(f"Warning: Models not loaded. Error: {e}")
+        return False
+
+# Attempt initial load
+load_models()
 
 class PredictRequest(BaseModel):
     text: str
@@ -130,16 +171,19 @@ def compute_sentiment_shift(clean_text: str) -> float:
 @app.get("/api")
 @app.get("/api/health")
 def health_check():
+    is_loaded = load_models()
     return {
         "status": "online",
-        "models_loaded": bool(all([vectorizer, rf_model, ada_model, gb_model, xgb_model]))
+        "models_loaded": is_loaded,
+        "load_error": load_error,
+        "found_paths": found_paths
     }
 
 @app.post("/predict")
 @app.post("/api/predict")
 def predict_sentiment(request: PredictRequest):
-    if not all([vectorizer, rf_model, ada_model, gb_model, xgb_model]):
-        return {"error": "Models are not loaded."}
+    if not load_models():
+        return {"error": f"Models are not loaded: {load_error}"}
         
     clean_text = preprocess_text(request.text)
     features = vectorizer.transform([clean_text]).toarray()

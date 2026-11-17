@@ -17,5 +17,5 @@ __pycache__/
 .vscode/
 .idea/
 
-.vercel
-api/*.pkl
+# Vercel deployment folder
+.vercel/

@@ -2,18 +2,12 @@
 run.py
 README.md
 
-# ML training, data, and duplicate pkl models
+# ML training and large data
 ML/train.py
 ML/main.py
 ML/data.csv
 *.csv
-ML/*.pkl
-ML/ada_model.pkl
 ML/dt_model.pkl
-ML/gb_model.pkl
-ML/rf_model.pkl
-ML/vectorizer.pkl
-ML/xgb_model.pkl
 
 # Virtual environments
 ML/venv/
